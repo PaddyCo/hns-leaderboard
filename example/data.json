@@ -1,0 +1,100 @@
+[
+  {
+    "handle": "Hravnkel",
+    "name": "Test Person #1",
+    "level": 3,
+    "experience": 3650,
+    "immortal": 19
+  },
+  {
+    "handle": "Lill-Jaun",
+    "name": "Test Person #2",
+    "level": 47,
+    "experience": 59765094280482900,
+    "immortal": 32
+  },
+  {
+    "handle": "Baronegil",
+    "name": "Test Person #3",
+    "level": 36,
+    "experience": 323299582861959,
+    "immortal": 0
+  },
+  {
+    "handle": "Phreedh",
+    "name": "Test Person #4",
+    "level": 1,
+    "experience": 1306,
+    "immortal": 0
+  },
+  {
+    "handle": "Gedwyn",
+    "name": "Test Person #5",
+    "level": 2,
+    "experience": 1664,
+    "immortal": 1
+  },
+  {
+    "handle": "Beastlord Stintoman",
+    "name": "Test Person #6",
+    "level": 14,
+    "experience": 9919001,
+    "immortal": 0
+  },
+  {
+    "handle": "Bosetor",
+    "name": "Test Person #7",
+    "level": 10,
+    "experience": 391612,
+    "immortal": 0
+  },
+  {
+    "handle": "Charlie",
+    "name": "Test Person #8",
+    "level": 1,
+    "experience": 1020,
+    "immortal": 2
+  },
+  {
+    "handle": "Gruj",
+    "name": "Test Person #9",
+    "level": 2,
+    "experience": 1624,
+    "immortal": 0
+  },
+  {
+    "handle": "Tequeida",
+    "name": "Test Person #10",
+    "level": 3,
+    "experience": 3436,
+    "immortal": 0
+  },
+  {
+    "handle": "Grodan",
+    "name": "Test Person #11",
+    "level": 1,
+    "experience": 275,
+    "immortal": 0
+  },
+  {
+    "handle": "Dj Daemon",
+    "name": "Test Person #12",
+    "level": 1,
+    "experience": 609,
+    "immortal": 0
+  },
+  {
+    "handle": "Esc",
+    "name": "Test Person #13",
+    "level": 1,
+    "experience": 166,
+    "immortal": 0
+  },
+  {
+    "handle": "Paddyco",
+    "name": "Test Person #14",
+    "level": 4,
+    "experience": 4122,
+    "immortal": 0
+  }
+]

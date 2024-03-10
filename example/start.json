@@ -1,0 +1,58 @@
+[
+  {
+    "handle": "Hravnkel",
+    "name": "Test Person #1",
+    "level": 1,
+    "experience": 0,
+    "immortal": 18
+  },
+  {
+    "handle": "Lill-Jaun",
+    "name": "Test Person #2",
+    "level": 1,
+    "experience": 0,
+    "immortal": 32
+  },
+  {
+    "handle": "Baronegil",
+    "name": "Test Person #3",
+    "level": 1,
+    "experience": 0,
+    "immortal": 0
+  },
+  {
+    "handle": "Phreedh",
+    "name": "Test Person #4",
+    "level": 1,
+    "experience": 0,
+    "immortal": 0
+  },
+  {
+    "handle": "Charlie",
+    "name": "Test Person #8",
+    "level": 1,
+    "experience": 0,
+    "immortal": 2
+  },
+  {
+    "handle": "Dj Daemon",
+    "name": "Test Person #12",
+    "level": 1,
+    "experience": 0,
+    "immortal": 0
+  },
+  {
+    "handle": "Esc",
+    "name": "Test Person #13",
+    "level": 1,
+    "experience": 0,
+    "immortal": 0
+  },
+  {
+    "handle": "Paddyco",
+    "name": "Test Person #14",
+    "level": 1,
+    "experience": 0,
+    "immortal": 0
+  }
+]
