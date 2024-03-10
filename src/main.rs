@@ -515,9 +515,10 @@ fn main() {
     );
 
     // Print it!
-    let output = screen.print();
+    let mut output = screen.print();
     println!("{}", output);
 
+    output.push_str("%RETURN");
     let encoded = WINDOWS_1252.encode(&output);
     fs::write(&args.output_path, encoded.0).unwrap();
 }
