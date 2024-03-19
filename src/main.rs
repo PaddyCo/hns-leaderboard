@@ -464,7 +464,10 @@ fn main() {
             },
         })
         .collect();
-    players.sort_by(|a, b| b.total_level().cmp(&a.total_level()));
+    players.sort_by(|a, b| match a.total_level() != b.total_level() {
+        true => b.total_level().cmp(&a.total_level()),
+        false => b.experience.total_cmp(&a.experience),
+    });
 
     let max_level = players.iter().map(|p| p.total_level()).max().unwrap();
 
@@ -518,7 +521,6 @@ fn main() {
     let mut output = screen.print();
     println!("{}", output);
 
-    output.push_str("%RETURN");
     let encoded = WINDOWS_1252.encode(&output);
     fs::write(&args.output_path, encoded.0).unwrap();
 }
