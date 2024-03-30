@@ -277,7 +277,10 @@ struct Player {
 impl Player {
     fn total_level(&self) -> usize {
         let immortal = match self.start_immortal {
-            Some(start) => self.immortal - (start),
+            Some(start) => match start < self.immortal {
+                true => self.immortal - (start),
+                false => start,
+            },
             None => self.immortal,
         };
         self.level + (immortal * 100)
@@ -290,11 +293,11 @@ impl Player {
 struct Args {
     /// RFC3339 date for when the competition starts (e.g 2024-03-01T00:00:00+01:00)
     #[arg(long)]
-    start: String,
+    start: Option<String>,
 
     /// RFC3339 date for when the competition end (e.g 2024-04-01T00:00:00+01:00)
     #[arg(long)]
-    end: String,
+    end: Option<String>,
 
     /// Greeting text file path
     #[arg(long)]
@@ -304,9 +307,9 @@ struct Args {
     #[arg(long)]
     logo_path: PathBuf,
 
-    /// Path to initial User JSON data, Used to calculate total level
+    /// Path to initial User JSON data, Used to calculate total level. Only needed for competition mode
     #[arg(long)]
-    start_data: PathBuf,
+    start_data: Option<PathBuf>,
 
     /// Path to current User JSON data
     #[arg(long)]
@@ -321,11 +324,27 @@ fn main() {
     let args = Args::parse();
 
     let curr_date_time = Utc::now().with_timezone(&Stockholm);
-    let start_date = DateTime::parse_from_rfc3339(&args.start).unwrap();
-    let end_date = DateTime::parse_from_rfc3339(&args.end).unwrap();
+    let start_date = match &args.start {
+        Some(date) => Some(DateTime::parse_from_rfc3339(date).unwrap()),
+        None => None,
+    };
+    let end_date = match &args.end {
+        Some(date) => Some(DateTime::parse_from_rfc3339(date).unwrap()),
+        None => None,
+    };
 
-    let current_day = curr_date_time.signed_duration_since(start_date).num_days();
-    let last_day = end_date.signed_duration_since(start_date).num_days();
+    let current_day = match start_date {
+        Some(date) => Some(curr_date_time.signed_duration_since(date).num_days()),
+        None => None,
+    };
+
+    let last_day = match start_date {
+        Some(start_date) => match end_date {
+            Some(date) => Some(date.signed_duration_since(start_date).num_days()),
+            None => None,
+        },
+        None => None,
+    };
 
     let mut screen = Screen::new();
     draw_box(
@@ -338,16 +357,6 @@ fn main() {
         BoxStyle::Fancy,
     );
 
-    // Draw greeting
-    //draw_box(
-    //    &mut screen,
-    //    &Vector2 { x: 5, y: 6 },
-    //    &Vector2 {
-    //        x: (MAX_WIDTH - 10) as isize,
-    //        y: 4,
-    //    },
-    //    BoxStyle::Simple,
-    //);
     let greeting =
         fs::read_to_string(args.greeting_path).expect("Greeting file could not be read!");
     draw_string(&mut screen, &Vector2 { x: 5, y: 7 }, &greeting, 0);
@@ -387,13 +396,26 @@ fn main() {
         BoxStyle::Simple,
     );
 
+    let leaderboard_header = match (current_day, last_day) {
+        (Some(current_day), Some(last_day)) => match current_day {
+            (..=0) => String::from("[Topplistan - Dag 0]"),
+            d if d >= last_day => String::from("[Topplistan]"),
+            _ => format!(
+                "[Topplistan - Dag {} av {}]",
+                current_day.clone(),
+                last_day.clone()
+            ),
+        },
+        _ => String::from("[Topplistan]"),
+    };
+
     draw_string(
         &mut screen,
         &Vector2 {
             x: 4,
             y: standing_y - 3,
         },
-        &format!("[Topplistan - Dag {} av {}]", current_day, last_day),
+        &leaderboard_header,
         32,
     );
 
@@ -444,9 +466,19 @@ fn main() {
         0,
     );
 
-    let start_data =
-        fs::read_to_string(&args.start_data).expect("Start data file could not be read!");
-    let start_players: Vec<Player> = serde_json::from_str(&start_data).unwrap();
+    let start_data = match &args.start_data {
+        Some(start_data) => {
+            Some(fs::read_to_string(&start_data).expect("Start data file could not be read!"))
+        }
+        None => None,
+    };
+    let start_players: Option<Vec<Player>> = match start_data {
+        Some(data) => match serde_json::from_str(&data) {
+            Ok(players) => Some(players),
+            Err(_) => panic!("Start data file could not be parsed!"),
+        },
+        None => None,
+    };
 
     let player_data = fs::read_to_string(&args.data).expect("Data file could not be read!");
     let players: Vec<Player> = serde_json::from_str(&player_data).unwrap();
@@ -458,8 +490,11 @@ fn main() {
             level: p.level,
             experience: p.experience,
             immortal: p.immortal,
-            start_immortal: match start_players.iter().find(|p2| p2.name == p.name) {
-                Some(start) => Some(start.immortal),
+            start_immortal: match &start_players {
+                Some(start_players) => match start_players.iter().find(|p2| p2.name == p.name) {
+                    Some(start) => Some(start.immortal),
+                    None => None,
+                },
                 None => None,
             },
         })
@@ -497,28 +532,36 @@ fn main() {
     // TODO: Handle end of competition
 
     // Competition progress
-    let bar_width = 12;
-    let bar_y = 4;
-    let bar_x = 52;
-    draw_string(
-        &mut screen,
-        &Vector2 { x: bar_x, y: bar_y },
-        &format!("     {}", String::from("-").repeat(bar_width)),
-        35,
-    );
-    draw_string(
-        &mut screen,
-        &Vector2 { x: bar_x, y: bar_y },
-        &format!(
-            " {}% {}",
-            ((current_day as f64 / last_day as f64) * 100.0).floor(),
-            generate_bar(bar_width, current_day as usize, last_day as usize)
-        ),
-        0,
-    );
+    if let (Some(current_day), Some(last_day)) = (current_day, last_day) {
+        let progress = ((current_day as f64 / last_day as f64) * 100.0)
+            .floor()
+            .clamp(0.0, 100.0) as usize;
+        let bar_width = 12;
+        let bar_y = 4;
+        let bar_x = 52;
+        draw_string(
+            &mut screen,
+            &Vector2 { x: bar_x, y: bar_y },
+            &format!("     {}", String::from("-").repeat(bar_width)),
+            32,
+        );
+        draw_string(
+            &mut screen,
+            &Vector2 { x: bar_x, y: bar_y },
+            &format!(
+                " {}% {}",
+                progress,
+                generate_bar(bar_width, current_day as usize, last_day as usize)
+            ),
+            match progress {
+                100 => 33,
+                _ => 0,
+            },
+        );
+    }
 
     // Print it!
-    let mut output = screen.print();
+    let output = screen.print();
     println!("{}", output);
 
     let encoded = WINDOWS_1252.encode(&output);
